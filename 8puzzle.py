@@ -1,18 +1,15 @@
-import copy
-import math
-import random
 import time
 
 class EightPuzzle:
     def __init__(self):
 
-        self._state = [[2, 4, 3],
-                       [7, 1, 6],
-                       [5, 0, 8]]
+        self._state = [[0, 2, 3],
+                       [7, 4, 6],
+                       [5, 1, 8]]
         '''
-        self._state = [[3, 7, 6],
-                       [1, 2, 8],
-                       [5, 0, 4]]'''
+        self._state = [[1, 8, 3],
+                       [7, 2, 0],
+                       [4, 6, 5]]'''
         self._goal_state = [[1, 2, 3],
                             [4, 5, 6],
                             [7, 8, 0]]
@@ -82,30 +79,33 @@ class EightPuzzle:
         return self._parent.solution(path)
 
     def solve(self):
-        def is_solved(node):
+        def goal_test(node):
             return node._state == node._goal_state
 
+        if goal_test(self):
+            return self.solution([])
+
         frontier = [self]
-        explored = [self]
+        explored = []
+
         while len(frontier) > 0:
             node = frontier.pop(0)
-            if is_solved(node):
-                return node.solution([])
-            else:
-                # find possible actions
-                actions = node.actions()
+            explored.append(node)
 
-                # execute them
-                successors = map(node.act, actions)
-                for child in successors:
-                    if child not in explored:
-                        child._parent = node
-                        child._depth = node._depth + 1
-                        explored.append(child)
-                        if is_solved(child):
-                            return child.solution([])
-                        else:
-                            frontier.append(child)
+            # find possible actions
+            actions = node.actions()
+
+            # execute them
+            successors = map(node.act, actions)
+            for child in successors:
+                if child not in explored and child not in frontier:
+                    child._parent = node
+                    child._depth = node._depth + 1
+                    explored.append(child)
+                    if goal_test(child):
+                        return child.solution([])
+                    else:
+                        frontier.append(child)
         return None
 
 
